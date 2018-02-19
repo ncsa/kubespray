@@ -1,5 +1,13 @@
 ![Kubernetes Logo](https://s28.postimg.org/lf3q4ocpp/k8s.png)
 
+# Notes
+Edit `inventory/group_vars/k8s-cluster.yml` to add line
+```
+calico_mtu: 1408
+```
+
+For sdsc
+
 ## Deploy a production ready kubernetes cluster
 
 If you have questions, join us on the [kubernetes slack](https://kubernetes.slack.com), channel **#kubespray**.

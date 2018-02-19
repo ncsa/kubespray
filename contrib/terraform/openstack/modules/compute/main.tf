@@ -109,6 +109,14 @@ resource "openstack_compute_instance_v2" "k8s_master" {
         depends_on = "${var.network_id}"
     }
     user_data = "${var.user_data}"
+
+    provisioner "local-exec" {
+       command = <<EOF
+         sed s/MASTER_ADDRESS/${var.k8s_master_fips[0]}/ contrib/terraform/openstack/save_kubernetes_config.sh \
+       | sed s/CLUSTERNAME/${var.cluster_name}/ \
+       > artifacts/save_kubernetes_config.sh
+       EOF
+    }
 }
 
 resource "openstack_compute_instance_v2" "k8s_master_no_etcd" {
