@@ -89,10 +89,11 @@
     - "/etc/cni/net.d"
     - "/opt/cni/bin"
   when:
-    - kube_network_plugin in ["calico", "weave", "canal", "flannel", "contiv"]
+    - kube_network_plugin in ["calico", "weave", "canal", "flannel", "contiv", "cilium"]
     - inventory_hostname in groups['k8s-cluster']
   tags:
     - network
+    - cilium
     - calico
     - weave
     - canal
@@ -147,10 +148,8 @@
   tags: bootstrap-os
 
 
-- name: Install latest version of python-apt for Debian distribs
+- name: Update package management cache (APT)
   apt:
-    name: python-apt
-    state: latest
     update_cache: yes
     cache_valid_time: 3600
   when: ansible_os_family == "Debian"
@@ -172,18 +171,13 @@
     - bootstrap-os
 
 - name: Install epel-release on RedHat/CentOS
-  shell: rpm -qa | grep epel-release || rpm -ivh {{ epel_rpm_download_url }}
-  register: epel_task_result
-  until: epel_task_result|succeeded
-  retries: 4
-  delay: "{{ retry_stagger | random + 3 }}"
-  changed_when: False
+  yum:
+    name: epel-release
+    state: present
   when:
     - ansible_distribution in ["CentOS","RedHat"]
     - not is_atomic
-    - epel_rpm_download_url != ''
     - epel_enabled|bool
-  check_mode: no
   tags:
     - bootstrap-os
 
